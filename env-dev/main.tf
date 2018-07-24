@@ -1,4 +1,12 @@
 #================================================================
+# Specify Terraform Version
+#================================================================
+
+terraform {
+  required_version = ">= 0.11, < 0.12"
+}
+
+#================================================================
 # Terraform Configuration
 #================================================================
 
@@ -12,45 +20,41 @@
 #}
 
 #================================================================
-# Web Server Cluster with Auto Scaling Group
+# AWS Web Server Cluster with Auto Scaling Group
 #================================================================
 
-module "webserver_cluster" {
-  source = "git::https://github.com/mynoton/projectone-module.git//modules/aws_asg?ref=v0.0.8"
+#module "aws_webserver_cluster" {
+#  source = "git::https://github.com/mynoton/projectone-module.git//modules/aws_asg?ref=v0.0.8"
+#  ami         = "${data.aws_ami.ubuntu.id}"
+#  server_text = "New server text"
+#  aws_region         = "${var.aws_region}"
+#  cluster_name       = "${var.cluster_name}"
+#  instance_type      = "t2.micro"
+#  min_size           = 2
+#  max_size           = 4
+#  enable_autoscaling = false
+#}
 
-  ami         = "${data.aws_ami.ubuntu.id}"
-  server_text = "New server text"
+#================================================================
+# Azure Resource Group Provisioning
+#================================================================
 
-  aws_region             = "${var.aws_region}"
-  cluster_name           = "${var.cluster_name}"
-
-  instance_type      = "t2.micro"
-  min_size           = 2
-  max_size           = 4
-  enable_autoscaling = false
+module "azure_resource_group" {
+  source = "git::https://github.com/mynoton/projectone-module.git//modules/azure_resource_group?ref=v0.0.13"
+  resource_group_name = "ProjectOne"
+  resource_group_location = "Southeast Asia"
+  resource_group_tag_name = "ProjectOne"
 }
 
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical
+#================================================================
+# Azure Virtual Network Provisioning
+#================================================================
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-
-  filter {
-    name   = "image-type"
-    values = ["machine"]
-  }
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
-  }
+module "azure_virtual_network" {
+  source = "git::https://github.com/mynoton/projectone-module.git//modules/azure_virtual_network?ref=v0.0.13"
+  vnw_name = "VNW ProjectOne Dev"
+  vnw_address = "10.0.0.0/16"
+  vnw_location = "Southeast Asia"
+  vnw_tag_env = "ProjectOne"
+  resource_group_name = "${module.azure_resource_group.resource_group_name_output}"
 }
