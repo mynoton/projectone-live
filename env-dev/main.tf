@@ -1,35 +1,32 @@
 #================================================================
 # Terraform Configuration
 #================================================================
-#
+
 #terraform {
 #  backend "s3" {
 #    encrypt        = true
-#    bucket         = "projectone-state-dev"
-#    dynamodb_table = "projectone-state-lock-dev"
-#    region         = "ap-southeast-1"
-#    key            = "terraform.tfstate"
+#    bucket         = "${var.remote_state}"
+#    dynamodb_table = "${var.remote_state_lock}"
+#    key            = "${var.remote_state_key}"
 #  }
 #}
 
 #================================================================
-# Web Service - Auto Scaling Group Module
+# Web Server Cluster with Auto Scaling Group
 #================================================================
 
 module "webserver_cluster" {
-  source = "git::https://github.com/mynoton/projectone-module.git//modules/aws_asg?ref=v0.0.5"
+  source = "git::https://github.com/mynoton/projectone-module.git//modules/aws_asg?ref=v0.0.8"
 
   ami         = "${data.aws_ami.ubuntu.id}"
   server_text = "New server text"
 
   aws_region             = "${var.aws_region}"
   cluster_name           = "${var.cluster_name}"
-  db_remote_state_bucket = "${var.db_remote_state_bucket}"
-  db_remote_state_key    = "${var.db_remote_state_key}"
 
   instance_type      = "t2.micro"
   min_size           = 2
-  max_size           = 2
+  max_size           = 4
   enable_autoscaling = false
 }
 
