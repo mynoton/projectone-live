@@ -60,7 +60,7 @@ module "azure_resource_group_b" {
 module "azure_virtual_network" {
   source                   = "git::https://github.com/mynoton/projectone-module.git//modules/azure_virtual_network"
   vnet_name                = "VNW ProjectOne DEV"
-  vnet_address             = "10.0.0.0/16"
+  vnet_address             = ["10.0.0.0/16"]
   vnet_location            = "Southeast Asia"
   vnet_tag_env             = "VNW ProjectOne DEV"
   vnet_resource_group_name = "${module.azure_resource_group_a.resource_group_name_output}"
@@ -205,7 +205,6 @@ module "azure_virtual_machine_db" {
   vm_resource_group_name     = "${module.azure_resource_group_a.resource_group_name_output}"
   vm_vnic_id                 = ["${module.azure_virtual_network_interface_db.virtual_network_interface_id_output}"]
   vm_size                    = "Standard_DS1_v2"
-  vm_avset_id                = "${module.azure_availability_set.availability_set_id_output}"
   vm_instance_count          = 2
   vm_disk_name               = "VM-Disk-DB-DEV"
   vm_disk_caching            = "ReadWrite"
@@ -253,7 +252,7 @@ module "azure_loadbalancer" {
   lb_nat_rule_resource_group_name        = "${module.azure_resource_group_a.resource_group_name_output}"
   lb_nat_rule_name                       = "LB-NAT-RDP-VM-ProjectOne-DEV"
   lb_nat_rule_protocol                   = "tcp"
-  # frontend port + count
+  # frontend port + count number
   lb_nat_rule_fe_port                    = "5000"
   lb_nat_rule_bk_port                    = 3389
   lb_nat_rule_fe_conf_name               = "LB-NAT-FE-Rule-ProjectOne-DEV"
@@ -271,6 +270,6 @@ module "azure_loadbalancer" {
   lb_probe_protocol                      = "tcp"
   lb_probe_port                          = 80
   lb_probe_interval_sec                  = 5
-  lb_probe_number_probe                  = 2
+  lb_probe_number                        = 2
 }
 
